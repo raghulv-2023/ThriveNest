@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>User Chatroom - ThriveNest</title>
+  <link rel="icon" href="{{ url_for('static', filename='I1.png') }}" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Playfair Display', serif;
+      background-color: #f7f7f7;
+      color: #335bff;
+    }
+    header {
+      background-color: rgba(0,128,128,0.8);
+      padding: 15px 20px;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .logo {
+      height: 150px;
+    }
+    .nav-center a {
+      color: #fcd9d9;
+      font-size: 2.2rem;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .nav-center a:hover, .active {
+      color: #000;
+    }
+    .container-content {
+      flex: 1;
+      max-width: 1000px;
+      width: 95%;
+      margin: 20px auto;
+      padding: 20px;
+      background: rgba(216,221,230,0.9);
+      border-radius: 10px;
+      overflow-y: auto;
+    }
+    /* Chat window styling */
+    .chat-window {
+      background-color: #e5ddd5;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      /* Optional: Set a max-height to force scrolling with overflow-y */
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .chat-bubble {
+      max-width: 70%;
+      padding: 10px;
+      border-radius: 10px;
+      margin: 5px 0;
+      word-wrap: break-word;
+    }
+    /* Advisor messages: aligned right with green background */
+    .chat-bubble.sent {
+      align-self: flex-end;
+      background-color: #dcf8c6;
+    }
+    /* User messages: aligned left with white background */
+    .chat-bubble.received {
+      align-self: flex-start;
+      background-color: #ffffff;
+    }
+    .timestamp {
+      font-size: 0.8rem;
+      color: #555;
+      text-align: right;
+    }
+    .message-form {
+      display: flex;
+      margin-bottom: 30px;
+    }
+    .message-form textarea {
+      flex: 1;
+      resize: none;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    .message-form button {
+      margin-left: 10px;
+      border-radius: 20px;
+      padding: 10px 20px;
+      background-color: #335bff;
+      color: #fff;
+      border: none;
+    }
+    /* Appointment Request Form */
+    .appt-form {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 15px;
+      margin-top: 30px;
+    }
+    footer {
+      background-color: teal;
+      color: #fff;
+      text-align: center;
+      padding: 15px;
+    }
+    /* Dropdown style for profile (optional inline adjustments) */
+    .dropdown {
+      display: none; 
+      position: absolute;
+      right: 0;
+      top: 90px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .dropdown a {
+      display: block;
+      padding: 10px 15px;
+      color: #335bff;
+      text-decoration: none;
+    }
+    .dropdown a:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <header>
+    <div class="logo">
+      <img src="{{ url_for('static', filename='I1.png') }}" alt="ThriveNest Logo" height="150" />
+    </div>
+    <div class="nav-center">
+      <a href="{{ url_for('dashboard') }}">Home</a>
+      <a href="{{ url_for('user_chatroom') }}" class="active">Chat</a>
+    </div>
+    <div class="profile" onclick="toggleDropdown()">
+      <img src="{{ url_for('static', filename='I2.png') }}" alt="Profile" height="120" style="border-radius:50%;" />
+      <div class="dropdown" id="profileDropdown">
+        <a href="{{ url_for('update_details') }}">Update Profile</a><br>
+        <a href="{{ url_for('change_password') }}">Change Password</a><br>
+        <a href="{{ url_for('logout') }}">Logout</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container-content">
+    <h1>Chat with Your Health Advisor</h1>
+    <p>Advisor: {{ advisor.name }}</p>
+    
+    <!-- Chat Window -->
+    <div class="chat-window" id="chatWindow">
+      {% for msg in messages %}
+        <!-- 
+          If the sender is the advisor, assign 'sent' (right aligned, green);
+          otherwise, assign 'received' (left aligned, white).
+        -->
+        <div class="chat-bubble {% if msg.sender_id == advisor.id %}sent{% else %}received{% endif %}">
+          <p>{{ msg.content }}</p>
+          <div class="timestamp">{{ msg.timestamp.strftime('%Y-%m-%d %H:%M') }}</div>
+        </div>
+      {% endfor %}
+    </div>
+    <!-- Chat Message Form -->
+    <form action="{{ url_for('user_chatroom') }}" method="POST" class="message-form">
+      <textarea name="content" rows="1" placeholder="Type your message..." required></textarea>
+      <input type="hidden" name="action" value="chat">
+      <button type="submit">Send</button>
+    </form>
+
+    <!-- Appointment Request Form -->
+    <div class="appt-form">
+      <h2>Request an Appointment</h2>
+      <form action="{{ url_for('user_chatroom') }}" method="POST">
+        <div class="form-group">
+          <label for="doctor_id">Select Doctor</label>
+          <select name="doctor_id" class="form-control" required>
+            {% for doctor in doctors %}
+              <option value="{{ doctor.id }}">{{ doctor.name }} ({{ doctor.specialization }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="problem_description">Describe Your Problem</label>
+          <textarea name="problem_description" class="form-control" rows="3" required></textarea>
+        </div>
+        <input type="hidden" name="action" value="appointment">
+        <button type="submit" class="btn btn-primary">Send Appointment Request</button>
+      </form>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mt-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category=='error' else category }}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <footer>
+    &copy; 2025 ThriveNest | All Rights Reserved
+  </footer>
+
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById("profileDropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+    window.onclick = function(event) {
+      if (!event.target.closest('.profile')) {
+        document.getElementById("profileDropdown").style.display = "none";
+      }
+    };
+  </script>
+</body>
+</html>

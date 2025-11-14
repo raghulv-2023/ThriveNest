@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='I1.png') }}">
+  <title>ThriveNest - Sign Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      background-color: #f7f7f7;
+      color: #335bff;
+    }
+    .navbar {
+      background-color: rgba(0, 128, 128, 0.8);
+      padding: 15px 20px;
+      height: 150px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+    .logo {
+      float: left;
+    }
+    .logo img {
+      height: 150px;
+      width: auto;
+    }
+    .nav-links {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .nav-links a {
+      color: #fcd9d9;
+      font-size: 2.5rem;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    .nav-links a:hover, .active {
+      color: #000;
+    }
+    .signup-container {
+      max-width: 600px;
+      margin: 100px auto;
+      padding: 40px;
+      background: rgba(216, 221, 230, 0.9);
+      border-radius: 10px;
+      text-align: left;
+    }
+    .signup-container h1 {
+      font-size: 3rem;
+      color: teal;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .signup-container label {
+      font-size: 1.5rem;
+      color: #333;
+    }
+    .signup-container input, 
+    .signup-container select {
+      width: 100%;
+      padding: 10px 15px;
+      margin: 5px 0 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1.5rem;
+    }
+    .password-container {
+      position: relative;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #555;
+    }
+    .d-flex {
+      display: flex;
+      gap: 10px;
+    }
+    .d-flex select {
+      flex: 1;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.5rem;
+      background-color: #FF66CC;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn-primary:hover {
+      background-color: #FF3399;
+      transform: scale(1.05);
+    }
+    .alert {
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+    }
+.gender-container {
+  display: flex;
+  gap: 10px;
+  font-size: 1.5rem;
+}
+
+.gender-container input {
+  margin-right: 15px; /* Reduce the spacing */
+  transform: scale(1.2);
+}
+
+/* Footer */
+footer {
+  background-color: teal;
+  color: #fff;
+  text-align: center;
+  height: 50px;
+  font-size: 1.3rem;
+  padding: 15px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav class="navbar d-flex justify-content-between align-items-center">
+      <div class="logo">
+        <a href="{{ url_for('home') }}">
+          <img src="{{ url_for('static', filename='I1.png') }}" alt="ThriveNest Logo">
+        </a>
+      </div>
+      <div class="nav-links">
+        <a id="login" href="{{ url_for('login') }}">Login</a>
+        <a id="signup" href="{{ url_for('signup') }}">Signup</a>
+        <a id="about" href="{{ url_for('about') }}">About</a>
+        <a id="report" href="{{ url_for('report') }}">Report</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="signup-container">
+      <h1>Sign Up</h1>
+      
+      <!-- Display flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div class="alert alert-{{ 'danger' if category=='signup_error' else 'info' }}">
+              {{ msg }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form action="{{ url_for('signup') }}" method="POST">
+        {% if not otp_sent and not otp_verified %}
+          <!-- Step 1: Send OTP -->
+          <input type="hidden" name="step" value="send_otp">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="Enter your email" required>
+          <button type="submit" class="btn btn-primary">Send OTP</button>
+        
+        {% elif otp_sent and not otp_verified %}
+          <!-- Step 2: Verify OTP -->
+          <input type="hidden" name="step" value="verify_otp">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" value="{{ email }}" readonly>
+          <label for="otp">Enter OTP</label>
+          <input type="text" id="otp" name="otp_input" placeholder="Enter OTP sent to email" required>
+          <button type="submit" class="btn btn-primary">Verify OTP</button>
+        
+        {% elif otp_verified %}
+          <!-- Step 3: Complete Signup -->
+          <input type="hidden" name="step" value="complete_signup">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" value="{{ email }}" readonly>
+          <label for="fullname">Full Name</label>
+          <input type="text" id="fullname" name="fullname" placeholder="Enter your full name" required>
+          <label>Gender</label>
+		  <div class="gender-container">
+			<input type="radio" id="male" name="gender" value="male" required>
+			<label for="male">Male</label>
+			<input type="radio" id="female" name="gender" value="female" required>
+			<label for="female">Female</label>
+			<input type="radio" id="other" name="gender" value="other" required>
+			<label for="other">Other</label>
+		  </div>
+          <label>Date of Birth</label>
+          <div class="d-flex">
+            <select id="dobDay" name="dobDay" required>
+              <option value="" disabled selected>Day</option>
+              {% for d in range(1,32) %}
+                <option value="{{ d }}">{{ d }}</option>
+              {% endfor %}
+            </select>
+            <select id="dobMonth" name="dobMonth" required>
+              <option value="" disabled selected>Month</option>
+              <option value="1">January</option>
+              <option value="2">February</option>
+              <option value="3">March</option>
+              <option value="4">April</option>
+              <option value="5">May</option>
+              <option value="6">June</option>
+              <option value="7">July</option>
+              <option value="8">August</option>
+              <option value="9">September</option>
+              <option value="10">October</option>
+              <option value="11">November</option>
+              <option value="12">December</option>
+            </select>
+            <select id="dobYear" name="dobYear" required>
+              <option value="" disabled selected>Year</option>
+              {% for y in range(2025, 1899, -1) %}
+                <option value="{{ y }}">{{ y }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <label for="password">Password</label>
+          <div class="password-container">
+            <input type="password" id="password" name="password" placeholder="Create a password" required>
+            <i class="fa fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
+          </div>
+
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="password-container">
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter password" required>
+            <i class="fa fa-eye toggle-password" onclick="togglePassword('confirmPassword', this)"></i>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Complete Sign Up</button>
+        {% endif %}
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 ThriveNest | All Rights Reserved
+  </footer>
+
+  <script>
+    function togglePassword(fieldId, icon) {
+      var field = document.getElementById(fieldId);
+      if (field.type === "password") {
+        field.type = "text";
+        icon.classList.toggle("fa-eye-slash");
+      } else {
+        field.type = "password";
+        icon.classList.toggle("fa-eye-slash");
+      }
+    }
+  </script>
+
+</body>
+</html>

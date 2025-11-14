@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Medicine Reminders - ThriveNest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='I1.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- Font Awesome (if needed) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    /* Full height for sticky footer */
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      background-color: #f7f7f7;
+      color: #335bff;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    .wrapper {
+      flex: 1;
+    }
+    header {
+      margin-bottom: 40px;
+    }
+    .navbar {
+      background-color: rgba(0, 128, 128, 0.8);
+      padding: 15px 20px;
+      height: 150px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-left img {
+      height: 150px;
+      width: auto;
+    }
+    .nav-center {
+      text-align: center;
+      flex: 1;
+    }
+    .nav-center a {
+      color: #fcd9d9;
+      font-size: 2.2rem;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    .nav-center a:hover, .active {
+      color: #000;
+    }
+    .nav-right {
+      text-align: right;
+    }
+    .nav-right .right-profile {
+      position: relative;
+      cursor: pointer;
+    }
+    .nav-right .right-profile img {
+      height: 120px;
+      width: auto;
+      border-radius: 50%;
+    }
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 90px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .dropdown a {
+      display: block;
+      padding: 10px 15px;
+      color: #335bff;
+      text-decoration: none;
+    }
+    .dropdown a:hover {
+      background-color: #f0f0f0;
+    }
+    /* Main content container styling */
+    #content-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(216, 221, 230, 0.9);
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #FF66CC;
+      font-size: 3rem;
+    }
+    /* Form styling */
+    form {
+      margin-bottom: 30px;
+    }
+    .form-group label {
+      font-size: 1.4rem;
+    }
+    .form-control {
+      font-size: 1.4rem;
+      border-radius: 8px;
+    }
+    .btn {
+      font-size: 1.4rem;
+      border-radius: 8px;
+      padding: 10px 20px;
+    }
+    /* Table styling */
+    table {
+      font-size: 1.4rem;
+    }
+    th, td {
+      padding: 12px 15px;
+    }
+    /* Footer styling */
+    footer {
+      background-color: teal;
+      color: #fff;
+      text-align: center;
+      font-size: 1.2rem;
+      padding: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <!-- Navigation Bar -->
+    <header>
+      <nav class="navbar">
+        <div class="nav-left">
+          <img src="{{ url_for('static', filename='I1.png') }}" alt="ThriveNest Logo">
+        </div>
+        <div class="nav-center">
+          <a id="dashboard" href="{{ url_for('dashboard') }}">Dashboard</a>
+        </div>
+        <div class="nav-right">
+          <div class="right-profile" onclick="toggleDropdown()">
+            <img src="{{ url_for('static', filename='I2.png') }}" alt="User Profile">
+            <div class="dropdown" id="profileDropdown">
+              <a href="{{ url_for('update_details') }}">Update Profile</a>
+              <a href="{{ url_for('change_password') }}">Change Password</a>
+              <a href="{{ url_for('logout') }}">Logout</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Main Content Container -->
+    <div id="content-container">
+      <h2>Manage Your Medicine Reminders</h2>
+      <form method="POST" action="{{ url_for('manage_medicines') }}">
+        <!-- Hidden field for editing an existing medicine -->
+        <input type="hidden" name="medicine_id" id="medicine_id">
+        <div class="form-group">
+          <label for="name">Medicine Name</label>
+          <input type="text" class="form-control" name="name" id="name" placeholder="Enter medicine name" required>
+        </div>
+        <div class="form-group">
+          <label for="dosage">Dosage</label>
+          <input type="text" class="form-control" name="dosage" id="dosage" placeholder="Enter dosage (optional)">
+        </div>
+        <div class="form-group">
+          <label for="reminder_time">Reminder Time (HH:MM)</label>
+          <input type="time" class="form-control" name="reminder_time" id="reminder_time" required>
+        </div>
+        <button type="submit" class="btn btn-success">Save</button>
+      </form>
+      <hr>
+      <h3>Your Medicines</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Medicine Name</th>
+            <th>Dosage</th>
+            <th>Reminder Time</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for med in medicines %}
+          <tr>
+            <td>{{ med.name }}</td>
+            <td>{{ med.dosage }}</td>
+            <td>{{ med.reminder_time.strftime("%H:%M") }}</td>
+            <td>
+              <button class="btn btn-primary edit-btn"
+                data-id="{{ med.id }}"
+                data-name="{{ med.name }}"
+                data-dosage="{{ med.dosage }}"
+                data-time="{{ med.reminder_time.strftime('%H:%M') }}">Edit</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 ThriveNest | All Rights Reserved
+  </footer>
+
+  <script>
+    // Toggle dropdown for right-profile
+    function toggleDropdown() {
+      var dropdown = document.getElementById("profileDropdown");
+      dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+    }
+    // Close dropdown when clicking outside
+    window.onclick = function(event) {
+      if (!event.target.closest('.right-profile')) {
+        document.getElementById("profileDropdown").style.display = "none";
+      }
+    };
+
+    // When an edit button is clicked, populate the form with the medicine details.
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.getElementById('medicine_id').value = this.getAttribute('data-id');
+        document.getElementById('name').value = this.getAttribute('data-name');
+        document.getElementById('dosage').value = this.getAttribute('data-dosage');
+        document.getElementById('reminder_time').value = this.getAttribute('data-time');
+        window.scrollTo(0, 0);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='I1.png') }}">
+  <title>ThriveNest - Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <!-- Font Awesome for eye icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      background-color: #f7f7f7;
+      color: #335bff;
+    }
+    
+    .navbar {
+      background-color: rgba(0, 128, 128, 0.8);
+      padding: 15px 20px;
+      height: 150px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+    
+    .logo {
+      float: left;
+    }
+    
+    .logo img {
+      height: 150px; /* Increased logo size */
+      width: auto;
+    }
+    
+    .nav-links {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    .nav-links a {
+      color: #fcd9d9;
+      font-size: 2.5rem;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    
+    .nav-links a:hover, .active {
+      color: #000;
+    }
+    
+    .login-container {
+      max-width: 500px;
+      margin: 100px auto;
+      padding: 40px;
+      background: rgba(216, 221, 230, 0.9);
+      border-radius: 10px;
+      text-align: center;
+    }
+    
+    .login-container h1 {
+      font-size: 3rem;
+      color: teal;
+      margin-bottom: 30px;
+    }
+    
+    .login-container form {
+      text-align: left;
+      position: relative;
+    }
+    
+    .login-container label {
+      font-size: 1.5rem;
+      color: #333;
+    }
+    
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 10px 15px;
+      margin: 10px 0 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1.5rem;
+    }
+    
+    .password-container {
+      position: relative;
+    }
+    
+    .password-container .toggle-password {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #555;
+    }
+    
+    .login-container .btn-primary {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.5rem;
+      background-color: #FF66CC;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    
+    .login-container .btn-primary:hover {
+      background-color: #FF3399;
+      transform: scale(1.05);
+    }
+    
+    .login-links {
+      margin-top: 20px;
+      font-size: 1.5rem;
+    }
+    
+    .login-links a {
+      text-decoration: none;
+      color: teal;
+      margin: 0 10px;
+    }
+    
+    .login-links a:hover {
+      color: #000;
+    }
+    
+    .alert {
+      margin-bottom: 20px;
+      font-size: 1.3rem;
+    }
+    
+/* Footer */
+footer {
+  background-color: teal;
+  color: #fff;
+  text-align: center;
+  height: 50px;
+  font-size: 1.3rem;
+  padding: 15px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar d-flex justify-content-between align-items-center">
+      <div class="logo">
+        <a href="{{ url_for('home') }}">
+          <img src="{{ url_for('static', filename='I1.png') }}" alt="ThriveNest Logo">
+        </a>
+      </div>
+      <div class="nav-links">
+        <a id="login" href="{{ url_for('login') }}">Login</a>
+        <a id="signup" href="{{ url_for('signup') }}">Signup</a>
+        <a id="about" href="{{ url_for('about') }}">About</a>
+        <a id="report" href="{{ url_for('report') }}">Report</a>
+      </div>
+    </nav>
+  </header>
+  
+  <main>
+    <div class="login-container">
+      <h1>Login</h1>
+      <!-- Display flash messages (errors only) -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            {% if category == 'login_error' %}
+              <div class="alert alert-danger">{{ msg }}</div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      <form action="{{ url_for('login') }}" method="POST">
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email" placeholder="Enter your email" required>
+        
+        <label for="password">Password</label>
+        <div class="password-container">
+          <input type="password" id="password" name="password" placeholder="Enter your password" required>
+          <i class="fa fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Login</button>
+      </form>
+      <div class="login-links">
+        <a href="{{ url_for('forgot_password') }}">Forgot Password?</a> | 
+        <a href="{{ url_for('signup') }}">Sign Up</a>
+      </div>
+    </div>
+  </main>
+  
+  <footer>
+    &copy; 2025 ThriveNest | All Rights Reserved
+  </footer>
+  
+  <script>
+    function togglePassword(fieldId, icon) {
+      var field = document.getElementById(fieldId);
+      if (field.type === "password") {
+        field.type = "text";
+        icon.classList.add("fa-eye-slash");
+      } else {
+        field.type = "password";
+        icon.classList.remove("fa-eye-slash");
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - ThriveNest</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='I1.png') }}" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Playfair Display', serif;
+      background-color: #f7f7f7;
+      color: #335bff;
+      height: 100%;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      margin-bottom: 40px;
+    }
+    .navbar {
+      background-color: rgba(0, 128, 128, 0.8);
+      padding: 15px 20px;
+      height: 150px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+    .logo img {
+      height: 150px;
+      width: auto;
+    }
+    .nav-center {
+      text-align: center;
+      flex: 1;
+    }
+    .nav-center a {
+      color: #fcd9d9;
+      font-size: 2.2rem;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    .nav-center a:hover, .active {
+      color: #000;
+    }
+    .right-profile {
+      position: relative;
+      cursor: pointer;
+    }
+    .right-profile img {
+      height: 120px;
+      width: auto;
+      border-radius: 50%;
+    }
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 90px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .dropdown a {
+      display: block;
+      padding: 10px 15px;
+      color: #335bff;
+      text-decoration: none;
+    }
+    .dropdown a:hover {
+      background-color: #f0f0f0;
+    }
+    .container-content {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      background: rgba(216, 221, 230, 0.9);
+      border-radius: 10px;
+      flex-grow: 1;
+    }
+    .container-content h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: teal;
+      font-size: 3rem;
+    }
+    .quote-box {
+      font-size: 1.8rem;
+      font-style: italic;
+      text-align: center;
+      margin: 30px 0;
+      color: #555;
+    }
+    .button-links a {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+    .health-advisor {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.5rem;
+      color: #007BFF;
+    }
+    /* New Appointment Status Table */
+    .appointment-section {
+      margin-top: 40px;
+    }
+    .appointment-section h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: teal;
+      font-size: 2rem;
+    }
+    .appointment-table {
+      width: 100%;
+      background: #ffffff;
+      border-radius: 8px;
+      margin-top: 20px;
+      overflow: hidden;
+    }
+    .appointment-table th, .appointment-table td {
+      padding: 12px;
+      text-align: left;
+    }
+    .chat-link {
+      display: block;
+      text-align: center;
+      margin: 30px auto;
+      font-size: 1.2rem;
+      max-width: 300px;
+    }
+    .footer {
+      background-color: teal;
+      color: #fff;
+      text-align: center;
+      font-size: 1.2rem;
+      padding: 15px;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='I1.png') }}" alt="ThriveNest Logo" />
+      </div>
+      <div class="nav-center">
+        <a href="{{ url_for('report') }}">Report</a>
+        <a href="{{ url_for('about') }}">About</a>
+      </div>
+      <div class="right-profile" onclick="toggleDropdown()">
+        <img src="{{ url_for('static', filename='I2.png') }}" alt="User Profile" />
+        <div class="dropdown" id="profileDropdown">
+          <a href="{{ url_for('update_details') }}">Update Profile</a>
+		  <a href="{{ url_for('sos') }}">Update SOS</a>
+          <a href="{{ url_for('change_password') }}">Change Password</a>
+          <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+  <!-- SOS Emergency Button -->
+  <div class="text-center mt-4">
+    <form method="POST" action="{{ url_for('send_sos') }}">
+      <button type="submit" class="btn btn-danger btn-lg">
+        🚨 Send Emergency SOS
+      </button>
+    </form>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container-content">
+    <h1>Welcome, {{ user.fullname }}</h1>
+
+    <!-- Inspirational Quote -->
+    <div class="quote-box" id="quote">
+      Loading inspirational quote...
+    </div>
+
+    <!-- Hyperlink Buttons Section -->
+    <div class="button-links text-center my-4">
+      <a href="{{ url_for('mental_health_resources') }}" class="btn btn-primary m-2">📚 Resources</a>
+      <a href="{{ url_for('personal_health_trends') }}" class="btn btn-primary m-2">📈 Health Trends</a>
+      <a href="{{ url_for('chatroom') }}" class="btn btn-primary m-2">💬 Chatroom</a>
+      <a href="{{ url_for('manage_medicines') }}" class="btn btn-primary m-2">💊 Medicine Reminders</a>
+    </div>
+
+    <!-- Health Advisor Information -->
+    <div class="health-advisor">
+      Your dedicated health advisor: 
+      <strong>{{ user.assigned_professional if user.assigned_professional else "Not Assigned" }}</strong>
+    </div>
+
+    <!-- Appointment Status Section -->
+    <div class="appointment-section">
+      <h2>Your Appointment Status</h2>
+      {% if appointments %}
+      <table class="appointment-table table table-bordered">
+        <thead class="thead-dark">
+          <tr>
+            <th>Doctor</th>
+            <th>Problem</th>
+            <th>Status</th>
+            <th>Appointment Date/Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for appt in appointments %}
+          <tr>
+            <td>
+              {% for doc in doctors %}
+                {% if doc.id == appt.doctor_id %}
+                  {{ doc.name }} ({{ doc.specialization }})
+                {% endif %}
+              {% endfor %}
+            </td>
+            <td>{{ appt.problem_description }}</td>
+            <td>{{ appt.status }}</td>
+            <td>
+              {% if appt.appointment_datetime %}
+                {{ appt.appointment_datetime.strftime("%Y-%m-%d %H:%M") }}
+              {% else %}
+                Not set
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+        <p class="text-center">You have no appointment requests at the moment.</p>
+      {% endif %}
+    </div>
+
+    <!-- Chat with Health Advisor Link -->
+    <a href="{{ url_for('user_chatroom') }}" class="chat-link btn btn-primary">
+      🧑‍⚕️ Chat with Your Health Advisor 
+    </a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mt-3">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category=='error' else category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    &copy; 2025 ThriveNest | All Rights Reserved
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    // Toggle profile dropdown
+    function toggleDropdown() {
+      const dropdown = document.getElementById("profileDropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+    window.onclick = function(event) {
+      if (!event.target.closest('.right-profile')) {
+        document.getElementById("profileDropdown").style.display = "none";
+      }
+    };
+
+    // Inspirational Quote
+    const quotes = [
+      "The best is yet to come. – Frank Sinatra",
+      "You are never too old to set another goal or to dream a new dream. – C.S. Lewis",
+      "Age is an issue of mind over matter. If you don't mind, it doesn't matter. – Mark Twain",
+      "With age comes wisdom, and with wisdom comes happiness.",
+      "Every day is a new beginning, take a deep breath and start again.",
+      "Happiness is not something ready made. It comes from your own actions. – Dalai Lama",
+      "The joy of life comes from our encounters with new experiences. – Gilda Radner",
+      "You don't stop laughing when you grow old, you grow old when you stop laughing. – George Bernard Shaw",
+      "Aging is not lost youth but a new stage of opportunity and strength. – Betty Friedan",
+      "Live life with arms wide open, and get the most out of every moment.",
+      "Keep smiling, because life is a beautiful thing and there's so much to smile about. – Marilyn Monroe",
+      "The longer I live, the more I realize the impact of attitude on life. – Charles R. Swindoll",
+      "Every moment is a fresh beginning. – T.S. Eliot",
+      "Old age is like everything else. To make a success of it, you've got to start young. – Theodore Roosevelt",
+      "Your present circumstances don't determine where you can go; they merely determine where you start. – Nido Qubein"
+    ];
+    document.getElementById('quote').innerText = quotes[Math.floor(Math.random() * quotes.length)];
+  </script>
+</body>
+</html>

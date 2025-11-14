@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='I1.png') }}">
+  <title>ThriveNest - Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Playfair Display', serif;
+      background-color: #f7f7f7;
+      color: #335bff;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: rgba(0, 128, 128, 0.8);
+      padding: 15px 20px;
+      height: 150px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+
+    .logo {
+      float: left;
+    }
+
+    .logo img {
+      height: 150px;
+      width: auto;
+    }
+
+    .nav-links {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .nav-links a {
+      color: #fcd9d9;
+      font-size: 2.5rem;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a:hover, .active {
+      color: #000;
+    }
+
+    /* Report Form Container */
+    .report-container {
+      max-width: 600px;
+      margin: 100px auto;
+      padding: 40px;
+      background: rgba(216, 221, 230, 0.9);
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .report-container h1 {
+      font-size: 3rem;
+      color: teal;
+      margin-bottom: 30px;
+    }
+
+    .report-container form {
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .report-container label {
+      font-size: 1.5rem;
+      color: #333;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .report-container input,
+    .report-container textarea {
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    
+    .report-container textarea {
+      resize: vertical;
+      min-height: 150px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.5rem;
+      background-color: #FF66CC;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    .btn-primary:hover {
+      background-color: #FF3399;
+      transform: scale(1.05);
+    }
+
+    /* Footer */
+    footer {
+      background-color: teal;
+      color: #fff;
+      text-align: center;
+      font-size: 1.2rem;
+      padding: 15px;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <header>
+    <nav class="navbar d-flex justify-content-between align-items-center">
+      <div class="logo">
+        <a href="{{ url_for('home') }}">
+		<img src="{{ url_for('static', filename='I1.png') }}" alt="ThriveNest Logo">
+		</a>
+      </div>
+      <div class="nav-links">
+        <a id="login" href="{{ url_for('login') }}">Login</a>
+        <a id="signup" href="{{ url_for('signup') }}">Signup</a>
+        <a id="about" href="{{ url_for('about') }}">About</a>
+        <a id="report" href="{{ url_for('report') }}">Report</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Report Form -->
+  <main>
+    <div class="report-container">
+      <h1>Report an Issue</h1>
+      <form action="{{ url_for('report') }}" method="POST">
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" name="subject" placeholder="Enter report subject" required>
+        
+        <label for="description">Description</label>
+        <textarea id="description" name="description" placeholder="Describe your issue" required></textarea>
+        
+        <button type="submit" class="btn btn-primary">Submit Report</button>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 ThriveNest | All Rights Reserved
+  </footer>
+</body>
+</html>

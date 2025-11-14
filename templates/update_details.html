@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Update Profile - ThriveNest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <style>
+    body {
+      font-family: 'Playfair Display', serif;
+      background-color: #f7f7f7;
+      color: #000;
+      margin: 0;
+    }
+    .navbar {
+      background-color: rgba(0, 128, 128, 0.8);
+      padding: 15px 20px;
+      height: 100px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      position: relative;
+    }
+    .navbar .profile {
+      position: relative;
+      cursor: pointer;
+    }
+    .navbar .profile img {
+      height: 70px;
+      width: 70px;
+      border-radius: 50%;
+    }
+    .navbar .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 80px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .navbar .dropdown a {
+      display: block;
+      padding: 10px 15px;
+      color: #000;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .navbar .dropdown a:hover {
+      background-color: #f0f0f0;
+    }
+	.nav-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.nav-center a {
+  font-size: 2rem;
+  color: #FFB6C1; /* baby pink */
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.nav-center a:hover {
+  color: #FF69B4; /* hot pink on hover */
+}
+
+    .container-form {
+      max-width: 700px;
+      margin: 40px auto;
+      background: rgba(216, 221, 230, 0.9);
+      padding: 30px;
+      border-radius: 10px;
+    }
+    .container-form h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: bold;
+      color: #333;
+    }
+    .form-group label {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #333;
+    }
+    .form-control {
+      font-size: 1.2rem;
+    }
+    .btn-primary, .btn-danger {
+      width: 220px;
+      padding: 8px 15px;
+      font-size: 1.4rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .btn-primary {
+      background-color: #FF66CC;
+    }
+    .btn-primary:hover {
+      background-color: #FF3399;
+      transform: scale(1.05);
+    }
+    .btn-danger {
+      background-color: #dc3545;
+    }
+    .btn-danger:hover {
+      background-color: #c82333;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+       <div class="nav-center">
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+		</div>
+    <div class="profile" onclick="toggleDropdown()">
+      <img src="{{ url_for('static', filename='I2.png') }}" alt="Profile">
+      <div class="dropdown" id="profileDropdown">
+        <a href="{{ url_for('update_details') }}">Update Profile</a>
+        <a href="{{ url_for('change_password') }}">Change Password</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+      </div>
+    </div>
+  </nav>
+  
+  <div class="container-form">
+    <h1>Update Profile Details</h1>
+    <form action="{{ url_for('update_details') }}" method="POST">
+      <!-- Personal Information -->
+      <div class="form-group">
+        <label for="fullname">Full Name</label>
+        <input type="text" class="form-control" id="fullname" name="fullname" value="{{ user.fullname }}" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email (cannot be changed)</label>
+        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" disabled>
+      </div>
+      <div class="form-group">
+        <label for="gender">Gender</label>
+        <select class="form-control" id="gender" name="gender" required>
+          <option value="male" {% if user.gender == 'male' %}selected{% endif %}>Male</option>
+          <option value="female" {% if user.gender == 'female' %}selected{% endif %}>Female</option>
+          <option value="other" {% if user.gender == 'other' %}selected{% endif %}>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <div class="form-row">
+          <div class="col">
+            <input type="number" class="form-control" name="dobDay" placeholder="Day" value="{{ user.dob_day }}" required>
+          </div>
+          <div class="col">
+            <input type="number" class="form-control" name="dobMonth" placeholder="Month" value="{{ user.dob_month }}" required>
+          </div>
+          <div class="col">
+            <input type="number" class="form-control" name="dobYear" placeholder="Year" value="{{ user.dob_year }}" required>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter your phone number" value="{{ user.phone or '' }}">
+      </div>
+      
+      <!-- Medical Details -->
+      <div class="form-group">
+        <label for="weight">Weight (kg)</label>
+        <input type="number" step="0.1" class="form-control" id="weight" name="weight" placeholder="Enter your weight" value="{{ user.weight or '' }}">
+      </div>
+      <div class="form-group">
+        <label for="height">Height (cm)</label>
+        <input type="number" step="0.1" class="form-control" id="height" name="height" placeholder="Enter your height" value="{{ user.height or '' }}">
+      </div>
+      <div class="form-group">
+        <label for="allergies">Allergies</label>
+        <input type="text" class="form-control" id="allergies" name="allergies" placeholder="List any allergies" value="{{ user.allergies or '' }}">
+      </div>
+      <div class="form-group">
+        <label for="chronic_conditions">Chronic Conditions</label>
+        <input type="text" class="form-control" id="chronic_conditions" name="chronic_conditions" placeholder="e.g., Diabetes, Hypertension" value="{{ user.chronic_conditions or '' }}">
+      </div>
+      <div class="form-group">
+        <label for="contact_name">Emergency Contact Name</label>
+        <input type="text" class="form-control" id="contact_name" name="contact_name" placeholder="Enter contact name" value="{{ user.emergency_contact_name or '' }}" required>
+      </div>
+      <div class="form-group">
+        <label for="contact_email">Emergency Contact Email</label>
+        <input type="email" class="form-control" id="contact_email" name="contact_email" placeholder="Enter contact email" value="{{ user.emergency_contact_email or '' }}" required>
+      </div>
+      <div class="form-group">
+        <label for="relationship">Relationship with the Emergency Contact</label>
+        <select class="form-control" id="relationship" name="relationship" required>
+          <option value="" disabled>Select Relationship</option>
+          <option value="Spouse" {% if user.emergency_relationship == 'Spouse' %}selected{% endif %}>Spouse</option>
+          <option value="Sibling" {% if user.emergency_relationship == 'Sibling' %}selected{% endif %}>Sibling</option>
+          <option value="Child" {% if user.emergency_relationship == 'Child' %}selected{% endif %}>Child</option>
+          <option value="Friend" {% if user.emergency_relationship == 'Friend' %}selected{% endif %}>Friend</option>
+          <option value="Neighbour" {% if user.emergency_relationship == 'Neighbour' %}selected{% endif %}>Neighbour</option>
+          <option value="Other" {% if user.emergency_relationship == 'Other' %}selected{% endif %}>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="helper_preference">Helper Gender Preference</label>
+        <select class="form-control" id="helper_preference" name="helper_preference">
+          <option value="male" {% if user.helper_preference == 'male' %}selected{% endif %}>Male</option>
+          <option value="female" {% if user.helper_preference == 'female' %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Update Details</button>
+    </form>
+    <form action="{{ url_for('delete_account') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+      <button type="submit" class="btn btn-danger">Delete Account</button>
+    </form>
+  </div>
+  
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById("profileDropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+    window.onclick = function(event) {
+      if (!event.target.closest('.profile')) {
+        document.getElementById("profileDropdown").style.display = "none";
+      }
+    };
+  </script>
+</body>
+</html>

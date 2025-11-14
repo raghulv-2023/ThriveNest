@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doctor Dashboard - ThriveNest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Playfair Display', serif;
+      background-color: #f7f7f7;
+      color: #335bff;
+      height: 100%;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    .navbar {
+      background-color: rgba(0, 128, 128, 0.8);
+      padding: 15px 20px;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .navbar img.logo {
+      height: 150px;
+      width: auto;
+    }
+    .welcome {
+      flex: 1;
+      text-align: center;
+      color: #fcd9d9;
+      font-size: 2.2rem;
+      font-weight: bold;
+    }
+    .profile {
+      position: relative;
+      cursor: pointer;
+    }
+    .profile img {
+      height: 120px;
+      width: auto;
+      border-radius: 50%;
+    }
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 90px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .dropdown a {
+      display: block;
+      padding: 10px 15px;
+      color: #335bff;
+      text-decoration: none;
+    }
+    .dropdown a:hover {
+      background-color: #f0f0f0;
+    }
+    .container-box {
+      flex-grow: 1;
+      max-width: 1000px;
+      margin: 20px auto;
+      padding: 20px;
+      background: rgba(216, 221, 230, 0.9);
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    .container-box h2 {
+      color: teal;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 2.5rem;
+    }
+    table {
+      font-size: 1.2rem;
+    }
+    .footer {
+      background-color: teal;
+      color: #fff;
+      text-align: center;
+      font-size: 1.2rem;
+      padding: 15px;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <img src="{{ url_for('static', filename='I1.png') }}" alt="ThriveNest Logo" class="logo">
+    <div class="welcome">Welcome, Dr. {{ doctor.name }}</div>
+    <div class="profile" onclick="toggleDropdown()">
+      <img src="{{ url_for('static', filename='I2.png') }}" alt="Profile">
+      <div class="dropdown" id="profileDropdown">
+        <a href="{{ url_for('update_details') }}">Update Profile</a>
+        <a href="{{ url_for('change_password') }}">Change Password</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+      </div>
+    </div>
+  </nav>
+  
+  <div class="container-box">
+    <h2>Appointment Requests</h2>
+    {% if appointments %}
+      <table class="table table-bordered">
+        <thead class="thead-dark">
+          <tr>
+            <th>Appointment ID</th>
+            <th>Patient Name</th>
+            <th>Health Advisor</th>
+            <th>Problem</th>
+            <th>Status</th>
+            <th>Date/Time</th>
+            <th>Respond</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for appt in appointments %}
+          <tr>
+            <td>{{ appt.id }}</td>
+            <td>{{ appt.patient_id }}</td>
+            <td>
+              {% if advisors[appt.advisor_id] %}
+                {{ advisors[appt.advisor_id].name }}
+              {% else %}
+                Unknown
+              {% endif %}
+            </td>
+            <td>{{ appt.problem_description }}</td>
+            <td>{{ appt.status }}</td>
+            <td>
+              {% if appt.appointment_datetime %}
+                {{ appt.appointment_datetime.strftime("%Y-%m-%d %H:%M") }}
+              {% else %}
+                Not set
+              {% endif %}
+            </td>
+            <td>
+              <form method="POST" action="{{ url_for('respond_appointment', appointment_id=appt.id) }}">
+                <div class="form-group">
+                  <label for="datetime_{{ appt.id }}">Set Date/Time</label>
+                  <input type="datetime-local" id="datetime_{{ appt.id }}" name="appointment_datetime" class="form-control">
+                </div>
+                <button type="submit" name="action" value="accept" class="btn btn-sm btn-success">Accept</button>
+                <button type="submit" name="action" value="reject" class="btn btn-sm btn-danger">Reject</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No pending appointments.</p>
+    {% endif %}
+  </div>
+  
+  <div class="container-box">
+    <h2>Approved Appointments</h2>
+    {% if approved_appointments %}
+      <table class="table table-bordered">
+        <thead class="thead-light">
+          <tr>
+            <th>Appointment ID</th>
+            <th>Patient Name</th>
+            <th>Health Advisor</th>
+            <th>Problem</th>
+            <th>Date/Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for appt in approved_appointments %}
+          <tr>
+            <td>{{ appt.id }}</td>
+            <td>{{ appt.patient_id }}</td>
+            <td>{{ advisors[appt.advisor_id].name if advisors[appt.advisor_id] else 'Unknown' }}</td>
+            <td>{{ appt.problem_description }}</td>
+            <td>
+              {% if appt.appointment_datetime %}
+                {{ appt.appointment_datetime.strftime("%Y-%m-%d %H:%M") }}
+              {% else %}
+                Not set
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <p>No approved appointments.</p>
+    {% endif %}
+  </div>
+  
+  <footer class="footer">
+    &copy; 2025 ThriveNest | All Rights Reserved
+  </footer>
+  
+  <script>
+    function toggleDropdown() {
+      var dropdown = document.getElementById("profileDropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+    window.onclick = function(event) {
+      if (!event.target.closest('.profile')) {
+        document.getElementById("profileDropdown").style.display = "none";
+      }
+    };
+  </script>
+</body>
+</html>

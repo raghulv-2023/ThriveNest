@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SOS - ThriveNest</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='I1.png') }}" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Playfair Display', serif;
+      background-color: #f7f7f7;
+      color: #335bff;
+      height: 100%;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      margin-bottom: 40px;
+    }
+    .navbar {
+      background-color: rgba(0, 128, 128, 0.8);
+      padding: 15px 20px;
+      height: 150px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+    .logo img {
+      height: 150px;
+      width: auto;
+    }
+    .nav-center {
+      text-align: center;
+      flex: 1;
+    }
+    .nav-center a {
+      color: #fcd9d9;
+      font-size: 2.2rem;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    .nav-center a:hover, .active {
+      color: #000;
+    }
+    .right-profile {
+      position: relative;
+      cursor: pointer;
+    }
+    .right-profile img {
+      height: 120px;
+      width: auto;
+      border-radius: 50%;
+    }
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 90px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .dropdown a {
+      display: block;
+      padding: 10px 15px;
+      color: #335bff;
+      text-decoration: none;
+    }
+    .dropdown a:hover {
+      background-color: #f0f0f0;
+    }
+    .container-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 30px;
+      background: rgba(216, 221, 230, 0.9);
+      border-radius: 10px;
+      flex-grow: 1;
+    }
+    .container-content h1, h2 {
+      text-align: center;
+      color: teal;
+      margin-bottom: 30px;
+    }
+    .footer {
+      background-color: teal;
+      color: #fff;
+      text-align: center;
+      font-size: 1.2rem;
+      padding: 15px;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Bar -->
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='I1.png') }}" alt="ThriveNest Logo" />
+      </div>
+      <div class="nav-center">
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+      </div>
+      <div class="right-profile" onclick="toggleDropdown()">
+        <img src="{{ url_for('static', filename='I2.png') }}" alt="User Profile" />
+        <div class="dropdown" id="profileDropdown">
+          <a href="{{ url_for('update_details') }}">Update Profile</a>
+          <a href="{{ url_for('change_password') }}">Change Password</a>
+          <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container-content">
+    <h1>Emergency SOS Settings</h1>
+
+    <form method="POST" action="{{ url_for('sos') }}">
+      <div class="form-group">
+        <label for="emergency_contact_name">Emergency Contact Name</label>
+        <input type="text" class="form-control" id="emergency_contact_name" name="emergency_contact_name" value="{{ user.emergency_contact_name }}">
+      </div>
+      <div class="form-group">
+        <label for="emergency_contact_email">Emergency Contact Email</label>
+        <input type="email" class="form-control" id="emergency_contact_email" name="emergency_contact_email" value="{{ user.emergency_contact_email }}">
+      </div>
+      <div class="form-group">
+        <label for="emergency_relationship">Relationship</label>
+        <input type="text" class="form-control" id="emergency_relationship" name="emergency_relationship" value="{{ user.emergency_relationship }}">
+      </div>
+      <div class="form-group">
+        <label for="default_sos_message">Default SOS Message</label>
+        <textarea class="form-control" id="default_sos_message" name="default_sos_message" rows="4">{{ user.default_sos_message or '' }}</textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Update SOS Info</button>
+    </form>
+
+    <hr class="my-4">
+
+    <h2>Trigger Emergency SOS</h2>
+    <form method="POST" action="{{ url_for('send_sos') }}">
+      <div class="form-group">
+        <label for="sos_message">Custom SOS Message (optional)</label>
+        <textarea class="form-control" id="sos_message" name="sos_message" rows="3" placeholder="Enter a specific message if needed..."></textarea>
+      </div>
+      <button type="submit" class="btn btn-danger btn-lg mt-2">🚨 Send SOS Now</button>
+    </form>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mt-4">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category=='error' else category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    &copy; 2025 ThriveNest | All Rights Reserved
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById("profileDropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+    window.onclick = function(event) {
+      if (!event.target.closest('.right-profile')) {
+        document.getElementById("profileDropdown").style.display = "none";
+      }
+    };
+  </script>
+</body>
+</html>

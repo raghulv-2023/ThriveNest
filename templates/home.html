@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='I1.png') }}">
+  <title>ThriveNest - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+  body {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  background: url('{{ url_for('static', filename='bg.png') }}') no-repeat center center fixed;
+  background-size: cover;
+  color: #335bff;
+  }
+
+	.navbar {
+      background-color: rgba(0, 128, 128, 0.8);
+      padding: 15px 20px;
+      height: 150px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      position: relative;
+    }
+  .logo {
+    float: left; /* Keep the logo on the left */
+  }
+  .logo img {
+    height: 70px;
+  }
+  .nav-links {
+    position: absolute; /* Remove from normal flow */
+    left: 50%;          /* Center horizontally relative to navbar */
+    transform: translateX(-50%); /* Adjust to truly center */
+  }
+  .nav-links a {
+  color: #fcd9d9 ; 
+  font-size: 2.5rem;
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+  }
+  .nav-links a:hover, .active {
+  color: #000; /* Even darker on hover for emphasis */
+	}
+
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  padding: 20px 20px;
+  background: rgba(216, 221, 230  , 0.8);
+  margin: 150px auto;
+  max-width: 1000px;
+  border-radius: 10px;
+}
+.hero h1 {
+  font-size: 3.5rem;
+  font-weight: bold;
+  color: teal;
+  margin-bottom: 20px;
+}
+.hero p {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+/* Buttons */
+.btn {
+  padding: 15px 30px;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.2s;
+}
+.btn-primary {
+  background-color: #FF66CC; /* Rose gold-like */
+  color: #fff;
+}
+.btn-primary:hover {
+  background-color: #FF3399;
+  transform: scale(1.05);
+}
+
+
+/* Tooltip Styles */
+#tourTooltip {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: none;
+  max-width: 250px;
+  font-size: 1.2rem;
+  text-align: center;
+}
+#tourTooltip::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: var(--arrow-offset, 20px);
+  border-width: 0 10px 10px 10px;
+  border-style: solid;
+  border-color: transparent transparent #ccc transparent;
+}
+#tourTooltip::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: var(--arrow-offset, 20px);
+  border-width: 0 9px 9px 9px;
+  border-style: solid;
+  border-color: transparent transparent #fff transparent;
+}
+#tourTooltip p {
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Tour Buttons */
+.tour-btn {
+  font-size: 1rem;
+  padding: 8px 15px;
+  margin: 5px;
+}
+
+/* Footer */
+footer {
+  background-color: teal;
+  color: #fff;
+  text-align: center;
+  height: 50px;
+  font-size: 1.3rem;
+  padding: 15px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+    .logo {
+      float: left;
+    }
+    
+    .logo img {
+      height: 150px; /* Increased logo size */
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="navbar d-flex justify-content-between align-items-center">
+      <div class="logo">
+        <img src="{{ url_for('static', filename='I1.png') }}" alt="ThriveNest Logo">
+      </div>
+      <div class="nav-links">
+        <a id="login" href="{{ url_for('login') }}">Login</a>
+        <a id="signup" href="{{ url_for('signup') }}">Signup</a>
+        <a id="about" href="{{ url_for('about') }}">About</a>
+        <a id="report" href="{{ url_for('report') }}">Report</a>
+      </div>
+    </nav>
+  </header>
+  <main>
+    <div class="hero">
+      <h1>Welcome to ThriveNest</h1>
+      <p>Your trusted companion platform for mental wellness & healthy aging.</p>
+      <button id="getStarted" class="btn btn-primary">Get Started</button>
+    </div>
+  </main>
+
+  <!-- Tooltip container -->
+  <div id="tourTooltip">
+    <p id="tourMessage"></p>
+    <button id="tourNext" class="btn btn-primary btn-sm tour-btn">Next</button>
+    <button id="tourEnd" class="btn btn-secondary btn-sm tour-btn">End Tour</button>
+  </div>
+
+  <footer>
+    &copy; 2025 ThriveNest | All Rights Reserved
+  </footer>
+
+  <script>
+    // Tour steps for a guided user experience
+    const tourSteps = [
+      {
+        target: document.getElementById('login'),
+        message: "Click here to log in and access your personalized dashboard."
+      },
+      {
+        target: document.getElementById('signup'),
+        message: "Sign up to create a new account and begin your wellness journey."
+      },
+      {
+        target: document.getElementById('about'),
+        message: "Learn more about ThriveNest and our mission."
+      },
+      {
+        target: document.getElementById('report'),
+        message: "Submit a report or provide feedback here."
+      }
+    ];
+    let currentStep = 0;
+
+    function showTourStep(index) {
+      if (index >= tourSteps.length) {
+        hideTour();
+        return;
+      }
+      currentStep = index;
+      const step = tourSteps[index];
+      const target = step.target;
+      const rect = target.getBoundingClientRect();
+      const tooltip = document.getElementById('tourTooltip');
+      
+      tooltip.style.top = (rect.bottom + window.scrollY + 10) + 'px';
+      tooltip.style.left = (rect.left + window.scrollX) + 'px';
+      
+      // Calculate arrow offset for the tooltip
+      const targetCenter = rect.left + window.scrollX + rect.width / 2;
+      const tooltipLeft = rect.left + window.scrollX;
+      const arrowOffset = targetCenter - tooltipLeft;
+      tooltip.style.setProperty('--arrow-offset', arrowOffset + 'px');
+      
+      document.getElementById('tourMessage').textContent = step.message;
+      tooltip.style.display = 'block';
+      
+      document.getElementById('tourNext').style.display = index === tourSteps.length - 1 ? 'none' : 'inline-block';
+    }
+
+    function hideTour() {
+      document.getElementById('tourTooltip').style.display = 'none';
+    }
+
+    document.getElementById('tourNext').addEventListener('click', function() {
+      showTourStep(currentStep + 1);
+    });
+    document.getElementById('tourEnd').addEventListener('click', hideTour);
+
+    document.getElementById('getStarted').addEventListener('click', function(event) {
+      event.preventDefault();
+      showTourStep(0);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mental Health Resources - ThriveNest</title>
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='I1.png') }}">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <style>
+    body {
+      font-family: 'Playfair Display', serif;
+      background-color: #f7f7f7;
+      color: #335bff;
+      padding-top: 80px;
+    }
+    .navbar {
+      background-color: rgba(0, 128, 128, 0.8);
+      padding: 15px 20px;
+      height: 150px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-left img {
+      height: 150px;
+      width: auto;
+    }
+    .nav-center {
+      text-align: center;
+      flex: 1;
+    }
+    .nav-center a {
+      color: #fcd9d9;
+      font-size: 2.2rem;
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s ease;
+    }
+    .nav-center a:hover, .active {
+      color: #000;
+    }
+    .nav-right {
+      text-align: right;
+    }
+    .nav-right .right-profile {
+      position: relative;
+      cursor: pointer;
+    }
+    .nav-right .right-profile img {
+      height: 120px;
+      width: auto;
+      border-radius: 50%;
+    }
+    .dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 90px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    .dropdown a {
+      display: block;
+      padding: 10px 15px;
+      color: #335bff;
+      text-decoration: none;
+    }
+    .dropdown a:hover {
+      background-color: #f0f0f0;
+    }
+.container {
+  max-width: 800px;
+  margin: 180px auto 0 auto; /* top margin clears the fixed navbar */
+  background-color: rgba(216, 221, 230, 0.9);
+  border-radius: 10px;
+  padding: 30px;
+}
+
+    h1 {
+      text-align: center;
+      color: teal;
+      margin-bottom: 20px;
+    }
+    form {
+      margin-bottom: 30px;
+    }
+    .form-group label {
+      font-size: 1.4rem;
+    }
+    .form-control {
+      font-size: 1.4rem;
+      border-radius: 8px;
+    }
+    .btn {
+      font-size: 1.4rem;
+      border-radius: 8px;
+      padding: 10px 20px;
+    }
+    footer {
+      background-color: teal;
+      color: #fff;
+      text-align: center;
+      font-size: 1.1rem;
+      padding: 15px;
+      margin-top: 40px;
+      border-radius: 0 0 10px 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <header>
+    <nav class="navbar" style="position: fixed; top: 0; width: 100%; z-index: 999;">
+      <div class="nav-left">
+        <img src="{{ url_for('static', filename='I1.png') }}" alt="ThriveNest Logo">
+      </div>
+        <div class="nav-center">
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('personal_health_trends') }}">Health Trends</a>
+        <a href="{{ url_for('chatroom') }}" class="active">Chatroom</a>
+      </div>
+      <div class="nav-right">
+        <div class="right-profile" onclick="toggleDropdown()">
+          <img src="{{ url_for('static', filename='I2.png') }}" alt="Logout">
+          <div class="dropdown" id="profileDropdown">
+            <a href="{{ url_for('logout') }}">Logout</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+  </header>
+  
+  <!-- Main Content -->
+  <div class="container">
+    <h1>Mood Tracker</h1>
+    <!-- Mood Tracker Form -->
+    <form method="POST" action="{{ url_for('save_mood') }}">
+      <div class="form-group">
+        <label for="mood">How are you feeling today?</label>
+        <select class="form-control" id="mood" name="mood" required>
+          <option value="">Select mood</option>
+          <option value="Happy">😊 Happy</option>
+          <option value="Calm">😌 Calm</option>
+          <option value="Anxious">😰 Anxious</option>
+          <option value="Sad">😢 Sad</option>
+          <option value="Angry">😠 Angry</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Save Mood</button>
+    </form>
+    
+    <!-- Mood Graph -->
+    <canvas id="moodChart" width="800" height="400"></canvas>
+  </div>
+  
+  <!-- Footer -->
+  <footer>
+    &copy; 2025 ThriveNest | Your Mental Wellness Matters
+  </footer>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Toggle dropdown for right-profile
+    function toggleDropdown() {
+      var dropdown = document.getElementById("profileDropdown");
+      dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+    }
+    
+    // Prepare mood data passed from Flask
+    var labels = {{ labels|tojson }};
+    var dataValues = {{ data|tojson }};
+    
+    // Create the mood chart using Chart.js
+    var ctx = document.getElementById('moodChart').getContext('2d');
+    var moodChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Mood (1=Angry, 2=Sad, 3=Anxious, 4=Calm, 5=Happy)',
+                data: dataValues,
+                backgroundColor: 'rgba(255, 102, 204, 0.2)',
+                borderColor: 'rgba(255, 51, 153, 1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    min: 0,
+                    max: 6,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value, index, values) {
+                            var moodLabels = {1: 'Angry', 2: 'Sad', 3: 'Anxious', 4: 'Calm', 5: 'Happy'};
+                            return moodLabels[value] || value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+  </script>
+</body>
+</html>
